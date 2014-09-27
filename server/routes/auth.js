@@ -3,7 +3,7 @@ var express = require("express"),
     passport = require("passport"),
     passportGoogle = require("passport-google"),
 
-    User = require("../models").User;
+    User = require("../models/user");
 
 passport.use(new passportGoogle.Strategy({
   returnURL: config.get("url") + "/auth/google/callback",

@@ -1,5 +1,6 @@
 {
   "db": {
+    "dataDir": "./.data/",
     "default": {
       "dialect": "sqlite",
       "storage": "./.data/default.sqlite"

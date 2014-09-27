@@ -13,7 +13,6 @@ client:
 configure:
 	npm install
 	bower install
-	mkdir -p .data
 
 db_migrate:
 	./scripts/db.js migrate
@@ -25,6 +24,7 @@ db_reset:
 	./scripts/db.js drop
 
 db_create:
+	mkdir -p .data
 	./scripts/db.js create
 
 db_setup: db_reset db_create db_migrate

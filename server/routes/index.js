@@ -5,6 +5,7 @@ routes = {
   "home": "/",
   "auth": "/auth",
   "session": "/session",
+  "zone": "/zones",
   "debug": "/debug" // TODO disable this in production
 };
 
@@ -15,6 +16,8 @@ module.exports = function(app) {
 
     if (path) {
       app.use(path, route);
+    } else {
+      app.use(route);
     }
   });
 };

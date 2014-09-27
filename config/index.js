@@ -49,7 +49,8 @@ config = convict({
         doc: "Log level in console(stdout)",
         default: "debug"
       }
-    }
+    },
+
   },
 
   static: {

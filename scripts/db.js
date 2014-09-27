@@ -56,7 +56,17 @@ commands = {
       .error(function() {
         console.error("* error rolling back db", arguments);
       });
+  },
+
+  console: function() {
+    require("../server/models");
+    var repl = require("repl");
+
+    repl.start({
+      prompt: "app >",
+    });
   }
+
 };
 
 console.log("Running command %s", cmd);

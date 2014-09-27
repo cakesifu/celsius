@@ -73,11 +73,11 @@ function buildScripts() {
         extensions: [".js", ".jsx"]
       };
 
+  bundler = browserify(entryPoint, options);
+
   if (options.watch) {
-    bundler = watchify(entryPoint, options);
+    bundler = watchify(bundler);
     bundler.on("update", makeBundle);
-  } else {
-    bundler = browserify(entryPoint, options);
   }
 
   bundler.transform(reactify);
