@@ -1,0 +1,14 @@
+{
+  "db": {
+    "default": {
+      "dialect": "sqlite",
+      "storage": "./.data/default.sqlite"
+    }
+  },
+  "logger": {
+    "src": false,
+    "console": {
+      "level": "debug"
+    }
+  }
+}
