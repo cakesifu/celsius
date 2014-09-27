@@ -2,9 +2,10 @@ var path = require("path"),
     _ = require("lodash"),
     sequence = require("run-sequence"),
     gulp = require("gulp"),
-    less = require("gulp-less"),
+    sass = require("gulp-sass"),
     clean = require("gulp-clean"),
     source = require("vinyl-source-stream"),
+    gutil = require("gulp-util"),
     sourcemaps = require("gulp-sourcemaps"),
     watchify = require("watchify"),
     reactify = require("reactify"),
@@ -27,7 +28,7 @@ var path = require("path"),
 gulp.task("watch", function(done) {
   options.watch = true;
   options.debug = true;
-  options.sourcemaps = false;
+  options.sourcemaps = true;
 
   sequence("build", "livereload", done);
 });
@@ -53,7 +54,7 @@ gulp.task("build", function(done) {
 gulp.task("livereload", function() {
   livereload.listen();
 
-  gulp.watch(dir("styles", "**/*.less"), ["styles"]);
+  gulp.watch(dir("styles", "**/*.{sass,scss}"), ["styles"]);
   gulp.watch(dir("dist", "**/*")).on("change", livereload.changed);
 });
 
@@ -95,28 +96,22 @@ function buildScripts() {
 }
 
 function buildStyles() {
-  var srcDir = dir('styles', 'client.less'),
+  var srcDir = dir('styles', 'client.scss'),
       destDir = dir('dist', 'styles'),
-      lessOptions = {
-        paths: [ "node_modules" ]
+      sassOptions = {
+        includePaths: [ "bower_components/foundation/scss" ]
       },
-      stream;
+      sourcemapsInit = options.sourcemaps ? sourcemaps.init() : gutil.noop();
+      sourcemapsWrite = options.sourcemaps ? sourcemaps.write() : gutil.noop();
 
-  if (options.minify) {
-    lessOptions.compress = true;
-  }
+  sassOptions.outputStyle = options.minify ? "compressed" : "nested";
+  sassOptions.errLogToConsole = !!options.watch;
 
-  stream = gulp.src(srcDir);
-  if (options.sourcemaps) {
-    stream = stream.pipe(sourcemaps.init());
-  }
-
-  stream = stream.pipe(less(lessOptions));
-
-  if (options.sourcemaps) {
-    stream = stream.pipe(sourcemaps.write());
-  }
-  return stream.pipe(gulp.dest(destDir));
+  return  gulp.src(srcDir)
+              .pipe(sourcemapsInit)
+              .pipe(sass(sassOptions))
+              .pipe(sourcemapsWrite)
+              .pipe(gulp.dest(destDir));
 }
 
 function dir(root) {
