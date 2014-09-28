@@ -1,4 +1,5 @@
 var express = require("express"),
+    _ = require("lodash"),
     config = require("../../config"),
 
     Zone = require("../models/zone");
@@ -7,9 +8,15 @@ module.exports = function(app) {
   var router = express.Router();
 
   router.param("zoneId", retreiveZone, ensureZone);
+  router.get("/", getZones);
   router.get("/:zoneId", getZone);
   router.get("/:zoneId/sensor", getSensor);
 
+  function getZones(req, res) {
+    Zone.all(function(err, zones) {
+      res.json(_.invoke(zones, "asJson"));
+    });
+  }
 
   function getZone(req, res) {
     res.json(req.zone.asJson());

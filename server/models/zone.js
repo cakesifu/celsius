@@ -18,6 +18,10 @@ Zone.find = function(id, callback) {
   datastore.findOne({ _id: id }, DataStoreCallback(callback));
 }
 
+Zone.all = function(callback) {
+  datastore.find({}, DataStoreCallback(callback));
+}
+
 Zone.create = function(data, callback) {
   datastore.insert(data, DataStoreCallback(callback));
 }
@@ -33,16 +37,22 @@ Zone.prototype.asJson = function(options) {
 }
 
 function DataStoreCallback(callback) {
-  return function(err, zone) {
+  return function(err, data) {
     if (err) {
-      callback(err, zone);
+      callback(err);
     }
 
-    if (!zone) {
-      callback(null, null);
+    if (!data) {
+      callback(null, data);
     }
 
-    callback(null, new Zone(zone));
+    if (_.isArray(data)) {
+      callback(null,  data.map(function(zone) {
+        return new Zone(zone);
+      }));
+    } else {
+      callback(null, new Zone(data));
+    }
   }
 }
 
