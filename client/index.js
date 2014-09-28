@@ -15,7 +15,9 @@ App.createApp = function(element) {
   var app, appStores, flux;
 
   appStores = {
-    "session": new stores.SessionStore()
+    "session": new stores.Session(),
+    "currentZone": new stores.Zone(),
+    "zones": new stores.Zones()
   };
 
   flux = new Fluxxor.Flux(appStores, actions);
@@ -25,7 +27,6 @@ App.createApp = function(element) {
 };
 
 var el = document.getElementById("client");
-console.log(el);
 if (el) {
   App.createApp(el);
 }
