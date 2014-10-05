@@ -36,7 +36,7 @@ module.exports = React.createClass({
         <Login />
       );
     }
-
+    debugger
     return (
       <PageWrapper>
         <Header />

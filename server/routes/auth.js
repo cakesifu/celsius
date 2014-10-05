@@ -10,20 +10,19 @@ passport.use(new passportGoogle.Strategy({
   realm: config.get("url")
 }, function (id, profile, done) {
   var email = profile.emails[0].value,
-      name = profile.name.givenName + " " + profile.name.familyName,
-      user;
+      name = profile.name.givenName + " " + profile.name.familyName;
 
-  User.findOrCreate({ email: email }, { name: name }).done(done);
+  User.findOrCreate({ email: email }, { name: name }, done);
 }));
 
 passport.serializeUser(function(user, done) {
   console.log("serializing user:", user);
-  done(null, user.id);
+  done(null, user._id);
 });
 
 passport.deserializeUser(function(userId, done) {
   console.log("deserializing user:", userId);
-  var user = User.find(userId).done(done);
+  User.find(userId, done);
 });
 
 module.exports = function(app) {

@@ -1,18 +1,19 @@
-var Fluxxor = require("fluxxor"),
-    React = require("react"),
+/** @jsx React.DOM */
 
-    ZoneManager;
+var
+    fluxxor = require("fluxxor"),
+    React = require("react");
 
-ZoneManager = React.createClass({
+module.exports = React.createClass({
   mixins: [
-    Fluxxor.FluxChildMixin(React),
-    Fluxxor.StoreWatchMixin("currentZone")
+    fluxxor.FluxChildMixin(React),
+    fluxxor.StoreWatchMixin("currentZone")
   ],
 
   getStateFromFlux: function() {
     var flux = this.getFlux();
     return {
-      zone: flix.store("currentZone").getState()
+      zone: flux.store("currentZone").getState()
     };
   },
 
@@ -25,5 +26,4 @@ ZoneManager = React.createClass({
   },
 
 });
-
 

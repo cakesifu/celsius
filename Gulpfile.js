@@ -73,6 +73,7 @@ function buildScripts() {
         basedir: __dirname,
         debug: options.debug,
         extensions: [".js", ".jsx"],
+        // needed for watchify
         cache: {},
         packageCache: {},
         fullPaths: true
@@ -85,6 +86,7 @@ function buildScripts() {
     bundler.on("update", makeBundle);
   }
 
+  bundler.transform({ global: true, NODE_ENV: options.env }, "envify");
   bundler.transform("reactify");
 
   function makeBundle() {

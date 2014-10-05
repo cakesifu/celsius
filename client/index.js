@@ -1,17 +1,18 @@
 var event = require("events"),
     _ = require("lodash"),
     util = require("util"),
-    Fluxxor = require("fluxxor"),
+    fluxxor = require("fluxxor"),
     React = require("react"),
     Application = require("./components/application"),
     stores = require("./stores"),
-    actions = require("./actions"),
-    dom = React.DOM;
+    actions = require("./actions");
 
-function App() {
+var el = document.getElementById("client");
+if (el) {
+  init(el);
 }
 
-App.createApp = function(element) {
+function init(element) {
   var app, appStores, flux;
 
   appStores = {
@@ -20,13 +21,9 @@ App.createApp = function(element) {
     "zones": new stores.Zones()
   };
 
-  flux = new Fluxxor.Flux(appStores, actions);
-  app = new Application({ flux: flux });
+  flux = new fluxxor.Flux(appStores, actions);
+  app = Application({ flux: flux });
 
   React.renderComponent(app, element);
 };
 
-var el = document.getElementById("client");
-if (el) {
-  App.createApp(el);
-}

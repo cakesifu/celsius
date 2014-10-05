@@ -10,7 +10,7 @@ var Nedb = require("nedb"),
     });
 
 function Zone(data) {
-  this.data = data;
+  _.extend(this, data);
   this.sensor = new Sensor(data.sensor);
 }
 
@@ -29,30 +29,19 @@ Zone.create = function(data, callback) {
 Zone.prototype.asJson = function(options) {
   var out = {};
 
-  out.id = this.data._id;
-  out.name = this.data.name;
+  out.id = this._id;
+  out.name = this.name;
   out.sensor = this.sensor.asJson();
 
   return out;
-}
+};
 
 function DataStoreCallback(callback) {
   return function(err, data) {
-    if (err) {
-      callback(err);
-    }
-
-    if (!data) {
-      callback(null, data);
-    }
-
-    if (_.isArray(data)) {
-      callback(null,  data.map(function(zone) {
-        return new Zone(zone);
-      }));
-    } else {
-      callback(null, new Zone(data));
-    }
+    if (err) return callback(err);
+    if (!data) return callback(null, data);
+    callback(null, _.isArray(data) ? data.map(build) : build(data));
+    function build(d) { return new Zone(d); }
   }
 }
 
