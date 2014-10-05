@@ -1,5 +1,5 @@
 module.exports = {
   Session: require("./session"),
-  Zone: require("./zone").ZoneStore,
-  Zones: require("./zone").ZonesStore,
+  Zone: require("./current_zone"),
+  Zones: require("./zone")
 };

@@ -8,7 +8,6 @@ var path = require("path"),
     gutil = require("gulp-util"),
     sourcemaps = require("gulp-sourcemaps"),
     watchify = require("watchify"),
-    reactify = require("reactify"),
     browserify = require("browserify"),
     livereload = require("gulp-livereload"),
 
@@ -18,7 +17,7 @@ var path = require("path"),
     },
 
     options = {
-      env: process.env.NODE_ENV || "development",
+      env: process.env.NODE_ENV,
       sourcemaps: false,
       minify: false,
       watch: false,
@@ -26,6 +25,7 @@ var path = require("path"),
     };
 
 gulp.task("watch", function(done) {
+  options.env = options.env || "development";
   options.watch = true;
   options.debug = true;
   options.sourcemaps = true;
@@ -34,7 +34,7 @@ gulp.task("watch", function(done) {
 });
 
 gulp.task("dist", function(done) {
-  options.env = "production";
+  options.env = options.env || "production";
   options.minify = true;
 
   sequence(
@@ -67,21 +67,25 @@ gulp.task("scripts", buildScripts);
 
 function buildScripts() {
   var bundler,
-      entryPoint = "./client",
+      entryPoint = "./client/index.js",
 
       bundlerOptions = {
+        basedir: __dirname,
         debug: options.debug,
-        extensions: [".js", ".jsx"]
+        extensions: [".js", ".jsx"],
+        cache: {},
+        packageCache: {},
+        fullPaths: true
       };
 
-  bundler = browserify(entryPoint, options);
+  bundler = browserify(entryPoint, bundlerOptions);
 
   if (options.watch) {
     bundler = watchify(bundler);
     bundler.on("update", makeBundle);
   }
 
-  bundler.transform(reactify);
+  bundler.transform("reactify");
 
   function makeBundle() {
     var bundle = bundler.bundle();
@@ -122,7 +126,7 @@ function dir(root) {
 
 function handleError(errSection) {
   return function(err) {
-    console.log(errSection, err);
+    gutil.log(gutil.colors.bgRed(errSection), err);
   }
 }
 

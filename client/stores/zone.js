@@ -1,25 +1,7 @@
-var Fluxxor = require("fluxxor"),
-    api = require("../lib/api"),
+var fluxxor = require("fluxxor"),
+    api = require("../lib/api");
 
-    ZoneStore;
-
-ZoneStore = Fluxxor.createStore({
-  initialize: function() {
-    this.zone = {};
-    this.bindActions("set_current_zone", this.setZone);
-  },
-
-  getState: function() {
-    return this.zone;
-  },
-
-  setZone: function(zone) {
-    this.zone = zone;
-    this.emit("change");
-  }
-});
-
-ZonesStore = Fluxxor.createStore({
+module.exports = fluxxor.createStore({
   initialize: function() {
     this.zones = [];
 
@@ -38,6 +20,3 @@ ZonesStore = Fluxxor.createStore({
     this.emit("change");
   }
 });
-
-module.exports.ZoneStore = ZoneStore;
-module.exports.ZonesStore = ZonesStore;
