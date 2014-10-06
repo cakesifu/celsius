@@ -25,5 +25,7 @@ function init(element) {
   app = Application({ flux: flux });
 
   React.renderComponent(app, element);
+
+  flux.actions.initialize();
 };
 

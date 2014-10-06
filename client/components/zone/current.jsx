@@ -11,16 +11,18 @@ module.exports = React.createClass({
   ],
 
   getStateFromFlux: function() {
-    return {};
+    var flux = this.getFlux();
+
+    return {
+      zone: flux.store("currentZone").getState()
+    };
   },
 
   render: function() {
-    throw "whatever";
     var zone = this.state.zone || {};
     return (
       <div>current zone is: {zone.name}</div>
     );
-
-  },
+  }
 
 });

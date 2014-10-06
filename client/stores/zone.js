@@ -8,14 +8,7 @@ module.exports = fluxxor.createStore({
     this.bindActions("load_zones", this.loadZones);
   },
 
-  loadZones: function() {
-    var self = this;
-    api.getZones(function(err, zones) {
-      self.setZones(zones);
-    });
-  },
-
-  setZones: function(zones) {
+  loadZones: function(zones) {
     this.zones = zones;
     this.emit("change");
   }

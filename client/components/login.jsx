@@ -8,14 +8,12 @@ module.exports = React.createClass({
     fluxxor.FluxChildMixin(React),
   ],
 
-  loginInit: function(strategy) {
-    var self = this;
+  loginGoogle: function() {
+    var url = "/auth/google";
 
-    return function() {
-      console.log("login with:", strategy);
-    }
+    console.log("login with:", strategy);
+    document.location.href = url;
   },
-
 
   render: function() {
     return (
@@ -23,7 +21,7 @@ module.exports = React.createClass({
         <h1>You're not currently logged in</h1>
         <p>Login options: </p>
         <ul>
-          <li><a onClick={this.loginInit("google")}>Google openid</a></li>
+          <li><a onClick={this.loginGoogle}>Google openid</a></li>
         </ul>
       </div>
     );

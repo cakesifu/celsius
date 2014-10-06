@@ -15,12 +15,6 @@ module.exports = React.createClass({
     fluxxor.StoreWatchMixin("session")
   ],
 
-  getInitialState: function() {
-    var flux = this.getFlux();
-    flux.actions.readSession();
-    return {};
-  },
-
   getStateFromFlux: function() {
     var flux = this.getFlux(),
         session = flux.store("session").getState();
@@ -36,7 +30,7 @@ module.exports = React.createClass({
         <Login />
       );
     }
-    debugger
+
     return (
       <PageWrapper>
         <Header />

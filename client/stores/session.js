@@ -5,15 +5,11 @@ var SessionStore = Fluxxor.createStore({
   initialize: function() {
     this.session = {};
 
-    this.bindActions("load_session", this.onLoadSession);
+    this.bindActions("load_session", this.setSession);
   },
 
   getState: function() {
     return this.session;
-  },
-
-  onLoadSession: function() {
-    api.getSession(this.setSession.bind(this));
   },
 
   setSession: function(data) {
