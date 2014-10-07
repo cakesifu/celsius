@@ -11,5 +11,10 @@ module.exports = fluxxor.createStore({
   loadZones: function(zones) {
     this.zones = zones;
     this.emit("change");
-  }
+  },
+
+  getState: function() {
+    return this.zones;
+  },
+
 });
