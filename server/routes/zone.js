@@ -9,6 +9,7 @@ module.exports = function(app) {
 
   router.param("zoneId", retreiveZone, ensureZone);
   router.get("/", getZones);
+  router.post("/", createZone);
   router.get("/:zoneId", getZone);
   router.get("/:zoneId/sensor", getSensor);
 
@@ -20,6 +21,18 @@ module.exports = function(app) {
 
   function getZone(req, res) {
     res.json(req.zone.asJson());
+  }
+
+  function createZone(req, res) {
+    Zone.create(req.body, function(err, zone) {
+      if (err) {
+        console.err(err);
+        return err;
+      }
+      res.status(201)
+         .location("/zone/" + zone._id)
+         .end();
+    });
   }
 
   function getSensor(req, res) {

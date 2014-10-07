@@ -26,6 +26,12 @@ Zone.create = function(data, callback) {
   datastore.insert(data, DataStoreCallback(callback));
 }
 
+Zone.remove = function(query, callback) {
+  datastore.remove(query, {}, function(err, num) {
+    callback(err, num);
+  });
+}
+
 Zone.prototype.asJson = function(options) {
   var out = {};
 
@@ -35,6 +41,10 @@ Zone.prototype.asJson = function(options) {
 
   return out;
 };
+
+Zone.prototype.remove = function(callback) {
+  Zone.remove({ _id: this._id }, callback);
+}
 
 function DataStoreCallback(callback) {
   return function(err, data) {
