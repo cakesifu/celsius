@@ -23,8 +23,27 @@ module.exports = React.createClass({
   render: function() {
     return(
       <div className="header-widget">
-        <ZoneMenu />
-        <p>Hello <strong>{this.state.user.name}</strong></p>
+        <nav className="top-bar">
+          <ul className="title-area">
+            <li className="name">
+              <h1><a>Celsius</a></h1>
+            </li>
+            <li className="divider"></li>
+          </ul>
+          <section className="top-bar-section">
+            <ZoneMenu />
+            <ul className="right">
+              <li className="divider"></li>
+              <li className="has-dropdown not-click">
+                <a>{this.state.user.name}</a>
+                <ul className="dropdown">
+                  <li><a>Profile</a></li>
+                  <li><a>Logout</a></li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+        </nav>
       </div>
     );
 

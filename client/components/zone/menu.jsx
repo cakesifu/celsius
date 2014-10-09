@@ -25,14 +25,17 @@ module.exports = React.createClass({
   render: function() {
     var zones = this.state.zones || [];
     return (
-      <ul className="zone-menu">{zones.map(this.renderZone)}</ul>
+      <ul className="left">
+        <li className="divider"></li>
+        {zones.map(this.renderZone)}
+      </ul>
     );
   },
 
   renderZone: function(zone) {
     return (
       <li key={zone._id}>
-        <a onClick={this.onZoneClick}>{zone.name}</a>
+        <a>{zone.name}</a>
       </li>
     );
   }
