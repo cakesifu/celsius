@@ -17,9 +17,9 @@ module.exports = React.createClass({
     };
   },
 
-  onZoneClick: function(ev) {
-    console.log("Set current zone to:", ev);
-
+  onZoneClick: function(zone) {
+    var flux = this.getFlux();
+    flux.actions.setCurrentZone(zone);
   },
 
   render: function() {
@@ -35,7 +35,7 @@ module.exports = React.createClass({
   renderZone: function(zone) {
     return (
       <li key={zone._id}>
-        <a>{zone.name}</a>
+        <a onClick={this.onZoneClick.bind(this, zone)}>{zone.name}</a>
       </li>
     );
   }

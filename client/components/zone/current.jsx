@@ -24,5 +24,4 @@ module.exports = React.createClass({
       <div>current zone is: {zone.name}</div>
     );
   }
-
 });

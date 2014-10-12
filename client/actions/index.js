@@ -30,7 +30,10 @@ module.exports = {
       }
       self.dispatch("load_zones", zones);
     });
-  }
+  },
 
+  setCurrentZone: function(zone) {
+    this.dispatch("set_current_zone", zone);
+  },
 
 };
