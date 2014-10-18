@@ -6,8 +6,9 @@ var React = require("react"),
 
 
 module.exports = React.createClass({
+  displayName: "Header",
   mixins: [
-    fluxxor.FluxChildMixin(React),
+    fluxxor.FluxMixin(React),
     fluxxor.StoreWatchMixin("session")
   ],
 

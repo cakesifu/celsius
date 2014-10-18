@@ -4,8 +4,9 @@ var React = require("react"),
     fluxxor = require("fluxxor");
 
 module.exports = React.createClass({
+  displayName: "Login",
   mixins: [
-    fluxxor.FluxChildMixin(React),
+    fluxxor.FluxMixin(React),
   ],
 
   loginGoogle: function() {

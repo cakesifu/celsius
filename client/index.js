@@ -18,7 +18,8 @@ function init(element) {
   appStores = {
     "session": new stores.Session(),
     "currentZone": new stores.Zone(),
-    "zones": new stores.Zones()
+    "zones": new stores.Zones(),
+    "app": new stores.AppState()
   };
 
   flux = new fluxxor.Flux(appStores, actions);

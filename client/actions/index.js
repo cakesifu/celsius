@@ -34,6 +34,6 @@ module.exports = {
 
   setCurrentZone: function(zone) {
     this.dispatch("set_current_zone", zone);
-  },
+  }
 
 };

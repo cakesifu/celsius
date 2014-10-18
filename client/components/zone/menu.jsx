@@ -5,8 +5,9 @@ var
     React = require("react");
 
 module.exports = React.createClass({
+  displayName: "zone/Menu",
   mixins: [
-    fluxxor.FluxChildMixin(React),
+    fluxxor.FluxMixin(React),
     fluxxor.StoreWatchMixin("zones")
   ],
 
@@ -40,4 +41,3 @@ module.exports = React.createClass({
     );
   }
 });
-
