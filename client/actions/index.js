@@ -8,7 +8,7 @@ module.exports = {
   },
 
   loadSession: function() {
-    var self = this;
+    var dispatch = this.dispatch;
 
     api.getSession(function(err, session) {
       if (err) {
@@ -16,24 +16,37 @@ module.exports = {
         return;
       }
 
-      self.dispatch("load_session", session);
+      dispatch("LOAD_SESSION", session);
     });
   },
 
   loadZones: function() {
-    var self = this;
+    var dispatch = this.dispatch;
 
     api.getZones(function(err, zones) {
       if (err) {
         console.error("error loading zones", err);
         return;
       }
-      self.dispatch("load_zones", zones);
+      dispatch("LOAD_ZONES", zones);
     });
   },
 
   setCurrentZone: function(zone) {
-    this.dispatch("set_current_zone", zone);
-  }
+    this.dispatch("SET_CURRENT_ZONE", zone);
+  },
 
+  updateZone: function(zone, data) {
+    var dispatch = this.dispatch;
+
+    dispatch("UPDATE_ZONE", zone);
+
+    api.updateZone(zone, data, function(err, zone) {
+      if (err) {
+        dispatch("UPDATE_ZONE_ERROR", zone);
+        return;
+      }
+      dispatch("UPDATE_ZONE_SUCCESS", zone);
+    });
+  }
 };

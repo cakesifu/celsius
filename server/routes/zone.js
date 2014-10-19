@@ -11,6 +11,7 @@ module.exports = function(app) {
   router.get("/", getZones);
   router.post("/", createZone);
   router.get("/:zoneId", getZone);
+  router.put("/:zoneId", updateZone);
   router.get("/:zoneId/sensor", getSensor);
 
   function getZones(req, res) {
@@ -62,11 +63,12 @@ module.exports = function(app) {
     });
   }
 
-  function setTarget(req, res) {
-    req.zone.updateFields({
-
-    }, function(err, zone) {
-
+  function updateZone(req, res) {
+    req.zone.update(req.body, function(err, zone) {
+      if (err) {
+        return res.send(500);
+      }
+      res.send(zone.asJson());
     });
   }
 

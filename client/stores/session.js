@@ -2,10 +2,11 @@ var Fluxxor = require("fluxxor"),
     api = require("../lib/api");
 
 var SessionStore = Fluxxor.createStore({
+  actions: {
+    "LOAD_SESSION", "setSession"
+  },
   initialize: function() {
     this.session = {};
-
-    this.bindActions("load_session", this.setSession);
   },
 
   getState: function() {

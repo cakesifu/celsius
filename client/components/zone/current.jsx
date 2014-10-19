@@ -38,7 +38,7 @@ module.exports = React.createClass({
     return (
       <section className="current-zone">
         {this.renderTitle()}
-        {this.renderSettings()}
+        <Settings />
         {this.renderStatus()}
       </section>
     );
@@ -47,7 +47,7 @@ module.exports = React.createClass({
   renderSettings: function() {
     if (this.state.showSettings) {
       return (
-        <Settings zone={this.state.zone} />
+        <Settings />
       );
     }
 

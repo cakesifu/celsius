@@ -23,6 +23,20 @@ module.exports = {
 
       defer(callback, err, res.body);
     });
+  },
+
+  updateZone: function(zone, data, callback) {
+    request.put("/zones/" + zone.id)
+           .send(data)
+           .end(done);
+
+    function done(err, res) {
+      if (err) {
+        return defer(callback, err);
+      }
+
+      defer(callback, err, res.body);
+    }
   }
 };
 

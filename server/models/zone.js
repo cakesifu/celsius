@@ -46,6 +46,17 @@ Zone.prototype.remove = function(callback) {
   Zone.remove({ _id: this._id }, callback);
 }
 
+Zone.prototype.update = function(data, callback) {
+  var id = this._id;
+  datastore.update({ _id: id }, { $set: data }, function(err, count, zone) {
+    if (err) {
+      return callback(err);
+    }
+
+    Zone.find(id, callback);
+  });
+}
+
 function DataStoreCallback(callback) {
   return function(err, data) {
     if (err) return callback(err);
