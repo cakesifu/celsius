@@ -1,29 +1,13 @@
 /** @jsx React.DOM */
 
 var
-  fluxxor = require("fluxxor"),
   React = require("react");
 
 module.exports = React.createClass({
-  mixins: [
-    fluxxor.FluxMixin(React),
-    fluxxor.StoreWatchMixin("currentZone")
-  ],
   displayName: "zone/Settings",
 
-  getStateFromFlux: function() {
-    var flux = this.getFlux(),
-        store = flux.store("currentZone");
-
-    return {
-      zone: store.zone,
-      loading: store.loading
-    };
-  },
-
-
   render: function() {
-    var zone = this.state.zone;
+    var zone = this.props.zone;
     if (!zone) {
       return null;
     }
@@ -38,15 +22,23 @@ module.exports = React.createClass({
           </div>
 
           <div className="medium-4 columns">
-            heater/sensor
+            <label>
+              Sensor <code>Key</code>
+              <input type="text" defaultValue={zone.sensor.key} ref="sensor" />
+            </label>
+
+            <label>
+              Heater <code>Key</code>
+              <input type="text" defaultValue={zone.heater.key} ref="heater" />
+            </label>
           </div>
 
           <div className="medium-4 columns">
             <p>
-              <button onClick={this.saveSettings} className="small expand radius">Save</button>
+              <button onClick={this.save} className="small expand radius">Save</button>
             </p>
             <p>
-              <button className="small expand radius">Cancel</button>
+              <button onClick={this.cancel} className="small expand radius">Cancel</button>
             </p>
           </div>
         </div>
@@ -54,17 +46,30 @@ module.exports = React.createClass({
     );
   },
 
-  saveSettings: function(ev) {
-    var data = this.getZoneData();
-    this.getFlux().actions.updateZone(this.state.zone, data);
+  save: function(ev) {
+    if (this.props.onSave) {
+      var data = this.getZoneData();
+      this.props.onSave(data);
+    }
+    ev.preventDefault();
+  },
+
+  cancel:function(ev) {
+    if (this.props.onCancel) {
+      this.props.onCancel();
+    }
     ev.preventDefault();
   },
 
   getZoneData: function() {
     return {
-      name: this.refs.name.getDOMNode().value
-    }
-  },
-
-
+      name: this.refs.name.getDOMNode().value,
+      sensor: {
+        key: this.refs.sensor.getDOMNode().value
+      },
+      heater: {
+        key: this.refs.heater.getDOMNode().value
+      }
+    };
+  }
 });

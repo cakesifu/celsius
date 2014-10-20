@@ -3,7 +3,7 @@ var Fluxxor = require("fluxxor"),
 
 var SessionStore = Fluxxor.createStore({
   actions: {
-    "LOAD_SESSION", "setSession"
+    "LOAD_SESSION": "setSession"
   },
   initialize: function() {
     this.session = {};

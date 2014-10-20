@@ -24,7 +24,7 @@ module.exports = React.createClass({
   getInitialState: function() {
     return {
       showSettings: false
-    }
+    };
   },
 
   toggleSettingsPanel: function() {
@@ -38,7 +38,7 @@ module.exports = React.createClass({
     return (
       <section className="current-zone">
         {this.renderTitle()}
-        <Settings />
+        {this.renderSettings()}
         {this.renderStatus()}
       </section>
     );
@@ -47,7 +47,9 @@ module.exports = React.createClass({
   renderSettings: function() {
     if (this.state.showSettings) {
       return (
-        <Settings />
+        <Settings zone={this.state.zone}
+                  onSave={this.onSaveSettings}
+                  onCancel={this.toggleSettingsPanel} />
       );
     }
 
@@ -77,4 +79,9 @@ module.exports = React.createClass({
       </div>
     );
   },
+
+  onSaveSettings: function(data) {
+    this.getFlux().actions.updateZone(this.state.zone, data);
+  },
+
 });
