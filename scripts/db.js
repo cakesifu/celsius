@@ -1,4 +1,4 @@
-#!/bin/env node
+#!/usr/bin/env node
 
 var sequelize = require("../lib/db").getDatabase(),
     migrator = sequelize.getMigrator({
