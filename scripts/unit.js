@@ -3,24 +3,11 @@
 var zmq = require("zmq"),
     _ = require("lodash"),
     blessed = require("blessed"),
-    Sensor = require("../lib/units/sensor"),
+    Sensor = require("../lib/protocol/sensor"),
     ADDR = "tcp://127.0.0.1:7654",
     KEY = "foobar",
 
     crtTemperature = 20;
-
-//function Broker(options) {
-//  var sock = zmq.socket("router");
-
-//  sock.bindSync(options.addr || ADDR);
-//  sock.on("message", onMessage);
-
-//  function onMessage(identity, delimiter, msg) {
-//    console.log(arguments);
-//    console.log("received", identity, msg.toString());
-//    sock.send([identity, delimiter, "echo " + msg.toString()]);
-//  }
-//}
 
 var sensor = new Sensor({
   addr: ADDR,
