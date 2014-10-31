@@ -15,9 +15,9 @@ broker.on("unitDisconnect", function(unit) {
 });
 
 broker.on("unitIdentify", function(unit) {
-  console.log("unit identified", unit.info());
+  console.log("unit identified", unit.info);
 });
 
 broker.on("unitChange", function(unit) {
-  console.log("unit change", unit.status());
+  console.log("unit change", unit.status);
 });
