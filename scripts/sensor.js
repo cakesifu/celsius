@@ -98,7 +98,7 @@ setTemp(20);
 
 function setTemp(temp) {
   crtTemperature = temp;
-  sensor.setStatus(temp);
+  sensor.setValue(temp);
   stateBox.setContent("{center}{bold}" + temp + "{/bold}{/center}");
   log("New temperature: " + temp);
   screen.render();
