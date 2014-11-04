@@ -34,6 +34,14 @@ config = convict({
     },
   },
 
+  broker: {
+    commandSocketAddr: {
+      doc: "Address of the command socket",
+      default: "tcp://127.0.0.1:8081"
+    },
+
+  },
+
   logger: {
     name: {
       doc: "Top level logger name",

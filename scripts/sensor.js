@@ -4,7 +4,7 @@ var
     _ = require("lodash"),
     blessed = require("blessed"),
     Sensor = require("../lib/protocol/sensor"),
-    ADDR = "tcp://127.0.0.1:7654",
+    ADDR = "tcp://127.0.0.1:8081",
     KEY = process.argv[2] || "foobar",
     HELP = "<up>     - increase temp by 1\n" +
            "<down>   - decrease temp by 1\n" +

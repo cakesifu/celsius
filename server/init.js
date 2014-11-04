@@ -8,13 +8,20 @@ var logger = require("../lib/logger"),
     loggerMiddleware = require("morgan"),
 
     routesInit = require("./routes"),
-    modelsInit = require("./models");
+    modelsInit = require("./models"),
+
+    Broker = require("../lib/protocol/broker");
 
 module.exports = function(app, config) {
+
+  var broker = Broker({
+    addr: config.get("broker.commandSocketAddr")
+  });
 
   app.set('config', config);
   app.set("views", __dirname + "/views");
   app.set("view engine", "jade");
+  app.set("broker", broker);
 
   // logging
   app.use(loggerMiddleware('dev'));
