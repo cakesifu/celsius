@@ -1,7 +1,7 @@
 /** @jsx React.DOM */
 
 var
-  React = require("react");
+    React = require("react");
 
 module.exports = React.createClass({
   displayName: "zone/Settings",
@@ -11,6 +11,7 @@ module.exports = React.createClass({
     if (!zone) {
       return null;
     }
+
     return (
       <form className="zone-settings">
         <div className="row">
@@ -42,7 +43,18 @@ module.exports = React.createClass({
             </p>
           </div>
         </div>
+        <div className="row">
+          <ul>
+            {this.props.units.map(this.renderUnit)}
+          </ul>
+        </div>
       </form>
+    );
+  },
+
+  renderUnit: function(unit) {
+    return (
+      <li>{unit.info.key} -- {unit.status.value}</li>
     );
   },
 

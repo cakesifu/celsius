@@ -10,14 +10,15 @@ module.exports = React.createClass({
   displayName: "zone/Current",
   mixins: [
     fluxxor.FluxMixin(React),
-    fluxxor.StoreWatchMixin("currentZone"),
+    fluxxor.StoreWatchMixin("currentZone", "units"),
   ],
 
   getStateFromFlux: function() {
     var flux = this.getFlux();
 
     return {
-      zone: flux.store("currentZone").getState()
+      zone: flux.store("currentZone").getState(),
+      units: flux.store("units").units
     };
   },
 
@@ -48,6 +49,7 @@ module.exports = React.createClass({
     if (this.state.showSettings) {
       return (
         <Settings zone={this.state.zone}
+                  units={this.state.units}
                   onSave={this.onSaveSettings}
                   onCancel={this.toggleSettingsPanel} />
       );

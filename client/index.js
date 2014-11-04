@@ -19,7 +19,8 @@ function init(element) {
     "session": new stores.Session(),
     "currentZone": new stores.Zone(),
     "zones": new stores.Zones(),
-    "app": new stores.AppState()
+    "app": new stores.AppState(),
+    "units": new stores.Units()
   };
 
   flux = new fluxxor.Flux(appStores, actions);
@@ -28,5 +29,5 @@ function init(element) {
   React.renderComponent(app, element);
 
   flux.actions.initialize();
-};
+}
 

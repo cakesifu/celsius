@@ -37,6 +37,18 @@ module.exports = {
 
       defer(callback, err, res.body);
     }
+  },
+
+  getUnits: function(callback) {
+    request.get("/units").end(done);
+
+    function done(err, res) {
+      if (err) {
+        return defer(callback, err);
+      }
+
+      defer(callback, err, res.body);
+    }
   }
 };
 

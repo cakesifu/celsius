@@ -3,8 +3,12 @@ var
 
 module.exports = {
   initialize: function() {
-    this.flux.actions.loadSession();
-    this.flux.actions.loadZones();
+    var actions = this.flux.actions;
+    actions.loadSession();
+    actions.loadZones();
+    actions.loadUnits();
+
+    setInterval(actions.loadUnits, 2500);
   },
 
   loadSession: function() {
@@ -43,10 +47,26 @@ module.exports = {
 
     api.updateZone(zone, data, function(err, zone) {
       if (err) {
-        dispatch("UPDATE_ZONE_ERROR", zone);
+        dispatch("UPDATE_ZONE_ERROR", err);
         return;
       }
       dispatch("UPDATE_ZONE_SUCCESS", zone);
     });
+  },
+
+  loadUnits: function() {
+    var dispatch = this.dispatch;
+
+    dispatch("UNITS_LOAD");
+
+    api.getUnits(function(err, units) {
+      if (err) {
+        dispatch("UNITS_LOAD_ERROR", err);
+        return;
+      }
+
+      dispatch("UNITS_LOAD_SUCCESS", units);
+    });
   }
+
 };
