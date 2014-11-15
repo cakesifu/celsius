@@ -10,18 +10,25 @@ var logger = require("../lib/logger"),
     routesInit = require("./routes"),
     modelsInit = require("./models"),
 
-    Broker = require("../lib/protocol/broker");
+    Broker = require("../lib/protocol/broker"),
+    ZoneService = require("./services/zone");
 
 module.exports = function(app, config) {
+  var broker, zoneService;
 
-  var broker = Broker({
+  broker = Broker({
     addr: config.get("broker.commandSocketAddr")
   });
+
+  zoneService = ZoneService(broker);
+  zoneService.loadZones();
 
   app.set('config', config);
   app.set("views", __dirname + "/views");
   app.set("view engine", "jade");
+
   app.set("broker", broker);
+  app.set("zones", zoneService);
 
   // logging
   app.use(loggerMiddleware('dev'));

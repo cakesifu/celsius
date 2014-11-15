@@ -3,8 +3,7 @@ var _ = require("lodash"),
 
 
 models = {
-  User: require("./user"),
-  Zone: require("./zone")
+  User: require("./user")
 };
 
 function modelsInit(app) {
