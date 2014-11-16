@@ -1,72 +1,112 @@
-var Nedb = require("nedb"),
+var Datastore = require("../services/datastore"),
     _ = require("lodash"),
-    path = require("path"),
-    config = require("../../config"),
-    Sensor = require("./sensor"),
-    Heater = require("./heater"),
 
-    datastore = new Nedb({
-      filename: path.join(config.get("db.dataDir"), "zone.db"),
-      autoload: true
-    });
+    makeCallback = Datastore.makeCallback.bind(Datastore, Zone),
+    datastore = Datastore({model: "zone"}),
 
-function Zone(data) {
+    MANAGE_INTERVAL =  30 * 1000; // 3 minutes
+
+function Zone(data, broker) {
+  if (!(this instanceof Zone)) {
+    return new Zone(broker);
+  }
+
   _.extend(this, data);
-  this.sensor = new Sensor(data.sensor);
-  this.heater = new Heater(data.heater);
+
+  Object.defineProperties(this, {
+    _intervalId: {value: undefined},
+    _broker: {value: broker},
+    _sensorUnit: {value: undefined},
+    _heaterUnit: {value: undefined},
+    sensor: {
+      enumerable: true,
+      get: unitGetter('_sensorUnit')
+    },
+    heater: {
+      enumerable: true,
+      get: unitGetter('_heaterUnit')
+    }
+  });
+
+  this._setupUnits();
 }
 
-Zone.find = function(id, callback) {
-  datastore.findOne({ _id: id }, DataStoreCallback(callback));
-};
+// class methods
+_.extend(Zone, {
+  all: function(cb, broker) {
+    datastore.all(function(err, docs) {
+      if (err) {
+        return cb(err);
+      }
 
-Zone.all = function(callback) {
-  datastore.find({}, DataStoreCallback(callback));
-};
+      cb(undefined, docs.map(function(doc) {
+        return new Zone(doc, broker);
+      }));
+    });
+  },
 
-Zone.create = function(data, callback) {
-  datastore.insert(data, DataStoreCallback(callback));
-};
+  find: function(id, cb) {
+    datastore.find(id, makeCallback(cb));
+  },
 
-Zone.remove = function(query, callback) {
-  datastore.remove(query, {}, function(err, num) {
-    callback(err, num);
-  });
-};
+  create: function(data, cb) {
+    datastore.create(data, makeCallback(cb));
+  }
+});
 
-Zone.prototype.asJson = function(options) {
-  var out = {};
 
-  out.id = this._id;
-  out.name = this.name;
-  out.sensor = this.sensor.asJson();
-  out.heater = this.heater.asJson();
+// instance methods
+_.extend(Zone.prototype, {
+  update: function(data, cb) {
+    var doc = _.extend({}, this, data),
+        zone = this;
+    datastore.update(doc, function(err, doc) {
+      if (err) {
+        return cb(err);
+      }
 
-  return out;
-};
+      _.extend(zone, doc);
+      cb(undefined, zone);
+    });
+  },
 
-Zone.prototype.remove = function(callback) {
-  Zone.remove({ _id: this._id }, callback);
-};
+  remove: function(cb) {
+    datastore.remove(this, cb);
+  },
 
-Zone.prototype.update = function(data, callback) {
-  var id = this._id;
-  datastore.update({ _id: id }, { $set: data }, function(err, count, zone) {
-    if (err) {
-      return callback(err);
+  startManaging: function() {
+    this._intervalId = setInterval(this._manage.bind(this), MANAGE_INTERVAL);
+  },
+
+  stopManaging: function() {
+    clearInterval(this._intervalId);
+  },
+
+  _manage: function() {
+    console.log("managing zone: ", this._id);
+  },
+
+  _setupUnits: function() {
+    var sensorKey = this.sensorKey;
+
+    this._sensorUnit = _.find(this._broker.activeUnits, function(unit) {
+      return unit.info.key === sensorKey;
+    });
+  }
+});
+
+
+function unitGetter(prop) {
+  return function() {
+    var unit = this[prop];
+    if (!unit) {
+      return null;
     }
 
-    Zone.find(id, callback);
-  });
-};
-
-function DataStoreCallback(callback) {
-  return function(err, data) {
-    if (err) return callback(err);
-    if (!data) return callback(null, data);
-    callback(null, _.isArray(data) ? data.map(build) : build(data));
-    function build(d) { return new Zone(d); }
+    return {
+      key: unit.info.key,
+      status: unit.status
+    };
   };
 }
-
 module.exports = Zone;

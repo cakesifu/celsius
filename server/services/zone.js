@@ -1,5 +1,5 @@
 var _ = require("lodash"),
-    Zone = require("../models/zone2");
+    Zone = require("../models/zone");
 
 function ZoneService(broker) {
   if (!(this instanceof ZoneService)) {
@@ -57,7 +57,6 @@ _.extend(ZoneService.prototype, {
     console.log("remove zone:", id);
     callback("not implemented");
   }
-
 });
 
 module.exports = ZoneService;

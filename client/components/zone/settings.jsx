@@ -25,12 +25,12 @@ module.exports = React.createClass({
           <div className="medium-4 columns">
             <label>
               Sensor <code>Key</code>
-              <input type="text" defaultValue={zone.sensor.key} ref="sensor" />
+              <input type="text" defaultValue={zone.sensorKey} ref="sensor" />
             </label>
 
             <label>
               Heater <code>Key</code>
-              <input type="text" defaultValue={zone.heater.key} ref="heater" />
+              <input type="text" defaultValue={zone.heaterKey} ref="heater" />
             </label>
           </div>
 
@@ -76,12 +76,8 @@ module.exports = React.createClass({
   getZoneData: function() {
     return {
       name: this.refs.name.getDOMNode().value,
-      sensor: {
-        key: this.refs.sensor.getDOMNode().value
-      },
-      heater: {
-        key: this.refs.heater.getDOMNode().value
-      }
+      sensorKey: this.refs.sensor.getDOMNode().value,
+      heaterKey: this.refs.heater.getDOMNode().value
     };
   }
 });

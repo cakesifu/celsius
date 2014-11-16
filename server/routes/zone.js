@@ -20,8 +20,8 @@ module.exports = function(app) {
 
   function getZone(req, res) {
     var zone = req.zone;
-    zone.sensor.read(app.get("broker"));
-    res.json(zone.asJson());
+    console.log(JSON.stringify(zone));
+    res.json(zone);
   }
 
   function createZone(req, res) {
