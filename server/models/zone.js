@@ -14,10 +14,10 @@ function Zone(data, broker) {
   _.extend(this, data);
 
   Object.defineProperties(this, {
-    _intervalId: {value: undefined},
+    _intervalId: {value: undefined, writable: true},
     _broker: {value: broker},
-    _sensorUnit: {value: undefined},
-    _heaterUnit: {value: undefined},
+    _sensorUnit: {value: undefined, writable: true},
+    _heaterUnit: {value: undefined, writable: true},
     sensor: {
       enumerable: true,
       get: unitGetter('_sensorUnit')
@@ -27,6 +27,9 @@ function Zone(data, broker) {
       get: unitGetter('_heaterUnit')
     }
   });
+
+  broker.on("unitInfo", this._setupUnits.bind(this));
+  broker.on("unitDisconnected", this._setupUnits.bind(this));
 
   this._setupUnits();
 }
@@ -90,7 +93,8 @@ _.extend(Zone.prototype, {
     var sensorKey = this.sensorKey;
 
     this._sensorUnit = _.find(this._broker.activeUnits, function(unit) {
-      return unit.info.key === sensorKey;
+      var unitKey = unit.info && unit.info.key;
+      return unitKey && unitKey === sensorKey;
     });
   }
 });
@@ -104,7 +108,7 @@ function unitGetter(prop) {
     }
 
     return {
-      key: unit.info.key,
+      key: unit.info && unit.info.key,
       status: unit.status
     };
   };

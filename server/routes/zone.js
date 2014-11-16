@@ -20,7 +20,6 @@ module.exports = function(app) {
 
   function getZone(req, res) {
     var zone = req.zone;
-    console.log(JSON.stringify(zone));
     res.json(zone);
   }
 
