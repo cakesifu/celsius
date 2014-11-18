@@ -1,14 +1,20 @@
 var
-    api = require("../lib/api");
+    api = require("../lib/api"),
+    serverUpdates = require("../services/server_updates");
 
 module.exports = {
   initialize: function() {
-    var actions = this.flux.actions;
+    var actions = this.flux.actions,
+        dispatch = this.dispatch;
     actions.loadSession();
     actions.loadZones();
-    actions.loadUnits();
 
-    setInterval(actions.loadUnits, 2500);
+    serverUpdates.on("update:currentZone", function(zone) {
+      dispatch("SET_CURRENT_ZONE", zone);
+    });
+
+    serverUpdates.start();
+
   },
 
   loadSession: function() {
@@ -25,7 +31,8 @@ module.exports = {
   },
 
   loadZones: function() {
-    var dispatch = this.dispatch;
+    var dispatch = this.dispatch,
+        actions = this.flux.actions;
 
     api.getZones(function(err, zones) {
       if (err) {
@@ -33,11 +40,13 @@ module.exports = {
         return;
       }
       dispatch("LOAD_ZONES", zones);
+      actions.setCurrentZone(zones[0]);
     });
   },
 
   setCurrentZone: function(zone) {
     this.dispatch("SET_CURRENT_ZONE", zone);
+    serverUpdates.setCurrentZone(zone);
   },
 
   updateZone: function(zone, data) {
@@ -51,21 +60,6 @@ module.exports = {
         return;
       }
       dispatch("UPDATE_ZONE_SUCCESS", zone);
-    });
-  },
-
-  loadUnits: function() {
-    var dispatch = this.dispatch;
-
-    dispatch("UNITS_LOAD");
-
-    api.getUnits(function(err, units) {
-      if (err) {
-        dispatch("UNITS_LOAD_ERROR", err);
-        return;
-      }
-
-      dispatch("UNITS_LOAD_SUCCESS", units);
     });
   }
 

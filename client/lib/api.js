@@ -15,6 +15,16 @@ module.exports = {
     });
   },
 
+  getZone: function(id, callback) {
+    request.get("/zones/" + id).end(function(err, res) {
+      if (err) {
+        return defer(callback, err);
+      }
+
+      defer(callback, err, res.body);
+    });
+  },
+
   getZones: function(callback) {
     request.get("/zones").end(function(err, res) {
       if (err) {

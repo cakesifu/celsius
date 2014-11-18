@@ -76,7 +76,7 @@ module.exports = React.createClass({
       <div className="row zone-status">
         <div className="panel temperature small-6 medium-4 columns">
           current temperature
-          {sensor && sensor.state}
+          {sensor && sensor.status.value}
         </div>
         <div className="panel heater small-6 medium-4 columns">
           heater

@@ -3,7 +3,7 @@ var event = require("events"),
     util = require("util"),
     fluxxor = require("fluxxor"),
     React = require("react"),
-    Application = require("./components/application"),
+    Application = require("./views/application"),
     stores = require("./stores"),
     actions = require("./actions");
 

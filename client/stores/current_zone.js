@@ -9,6 +9,7 @@ module.exports = fluxxor.createStore({
     "UPDATE_ZONE_SUCCESS": "onZoneUpdateComplete",
     "UPDATE_ZONE_ERROR": "onZoneUpdateError",
   },
+
   initialize: function() {
     this.zone = null;
   },
@@ -33,20 +34,21 @@ module.exports = fluxxor.createStore({
   },
 
   onZoneUpdate: function(zone) {
-    if (this.zone && this.zone.id == zone.id) {
+    if (this.zone && this.zone._id == zone._id) {
       this.loading = true;
       this.emit("change");
     }
   },
 
   onZoneUpdateComplete: function(zone) {
-    if (zone.id == this.zone.id) {
+    if (zone._id == this.zone._id) {
+      this.loading = false;
       this.setZone(zone);
     }
   },
 
   onZoneUpdateError: function(zone) {
-    if (zone.id == this.zone.id) {
+    if (zone._id == this.zone._id) {
       this.loading = false;
       this.emit("change");
     }
