@@ -61,6 +61,19 @@ module.exports = {
       }
       dispatch("UPDATE_ZONE_SUCCESS", zone);
     });
+  },
+
+  setTargetTemperature: function(zone, temperature) {
+    var dispatch = this.dispatch;
+    zone.targetTemperature = temperature;
+
+    api.updateZone(zone, {targetTemperature: temperature}, function(err, zone) {
+      if (err) {
+        return dispatch("UPDATE_ZONE_ERROR", err);
+      }
+
+      dispatch("UPDATE_ZONE_SUCCESS", zone);
+    });
   }
 
 };

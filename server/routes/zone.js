@@ -12,7 +12,6 @@ module.exports = function(app) {
   router.post("/", createZone);
   router.get("/:zoneId", getZone);
   router.put("/:zoneId", updateZone);
-  router.get("/:zoneId/sensor", getSensor);
 
   function getZones(req, res) {
     res.json(_.values(zones));
@@ -26,8 +25,6 @@ module.exports = function(app) {
   function createZone(req, res) {
     zones.createZone(req.body, function(err, zone) {
       if (err) {
-        console.err(err);
-        return err;
       }
       res.status(201)
          .location("/zone/" + zone._id)
@@ -35,19 +32,13 @@ module.exports = function(app) {
     });
   }
 
-  function getSensor(req, res) {
-    var sensor = req.zone.sensor,
-        broker = app.get("broker");
-    sensor.read(broker);
-    res.json(sensor.asJson());
-  }
-
   function updateZone(req, res) {
     req.zone.update(req.body, function(err, zone) {
       if (err) {
         return res.send(500);
       }
-      res.send(zone.asJson());
+
+      res.send(zone);
     });
   }
 

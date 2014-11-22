@@ -63,12 +63,14 @@ _.extend(Zone.prototype, {
   update: function(data, cb) {
     var doc = _.extend({}, this, data),
         zone = this;
-    datastore.update(doc, function(err, doc) {
+    datastore.update(doc, function(err, updated) {
       if (err) {
         return cb(err);
       }
 
-      _.extend(zone, doc);
+      if (updated) {
+        _.extend(zone, data);
+      }
       cb(undefined, zone);
     });
   },

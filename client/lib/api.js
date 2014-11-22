@@ -36,7 +36,7 @@ module.exports = {
   },
 
   updateZone: function(zone, data, callback) {
-    request.put("/zones/" + zone.id)
+    request.put("/zones/" + zone._id)
            .send(data)
            .end(done);
 

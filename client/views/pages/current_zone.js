@@ -54,7 +54,6 @@ module.exports = React.createClass({
                   onCancel={this.toggleSettingsPanel} />
       );
     }
-
   },
 
   renderTitle: function() {
@@ -71,22 +70,33 @@ module.exports = React.createClass({
 
   renderStatus: function() {
     var zone = this.state.zone,
-        sensor = zone && zone.sensor;
+        sensor = zone && zone.sensor,
+        targetTemp = zone && zone.targetTemperature || 0;
+
     return(
       <div className="row zone-status">
-        <div className="panel temperature small-6 medium-4 columns">
-          current temperature
-          {sensor && sensor.status.value}
+        <div className="panel current-temperature small-12 medium-4 columns">
+          <h2>current temperature</h2>
+          <p>{sensor && sensor.status.value}</p>
         </div>
-        <div className="panel heater small-6 medium-4 columns">
-          heater
+        <div className="panel target-temperature small-12 medium-4 columns">
+          <h2>Target temperature</h2>
+          <p>{targetTemp}</p>
+          <button onClick={this.setTargetTemp.bind(this, targetTemp + 1)}>+</button>
+          <button onClick={this.setTargetTemp.bind(this, targetTemp - 1)}>-</button>
+        </div>
+        <div className="panel heater small-12 medium-4 columns">
+          <h2>heater</h2>
         </div>
       </div>
     );
   },
 
-  onSaveSettings: function(data) {
-    this.getFlux().actions.updateZone(this.state.zone, data);
+  setTargetTemp: function(temp) {
+    this.getFlux().actions.setTargetTemperature(this.state.zone, temp);
   },
 
+  onSaveSettings: function(data) {
+    this.getFlux().actions.updateZone(this.state.zone, data);
+  }
 });

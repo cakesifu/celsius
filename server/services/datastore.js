@@ -31,12 +31,12 @@ function Datastore(options) {
     },
 
     remove: function(doc, callback) {
-      datastore.remove({ _id: doc.id }, callback);
+      datastore.remove({ _id: doc._id }, callback);
     },
 
     update: function(doc, callback) {
-      datastore.update({ _id: doc.id }, { $set: doc }, function(err, count, doc) {
-        callback(err, doc);
+      datastore.update({ _id: doc._id }, { $set: doc }, function(err, count) {
+        callback(err, count === 1);
       });
     }
   });
