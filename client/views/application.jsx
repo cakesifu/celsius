@@ -5,9 +5,9 @@ var
     React = require("react"),
 
     Login = require("./login"),
-    Header = require("./header"),
-    PageWrapper = require("./page/wrapper"),
-    CurrentZone = require("./zone/current");
+    Header = require("./pagelets/header"),
+    PageWrapper = require("./components/page_wrapper"),
+    CurrentZone = require("./pages/current_zone");
 
 module.exports = React.createClass({
   mixins: [

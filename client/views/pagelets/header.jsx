@@ -2,7 +2,7 @@
 
 var React = require("react"),
     fluxxor = require("fluxxor"),
-    ZoneMenu = require("./zone/menu");
+    ZoneMenu = require("../components/zone_menu");
 
 
 module.exports = React.createClass({

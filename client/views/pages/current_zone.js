@@ -4,10 +4,10 @@ var
     fluxxor = require("fluxxor"),
     React = require("react"),
 
-    Settings = require("./settings");
+    Settings = require("../pagelets/settings");
 
 module.exports = React.createClass({
-  displayName: "zone/Current",
+  displayName: "pages/CurrentZone",
   mixins: [
     fluxxor.FluxMixin(React),
     fluxxor.StoreWatchMixin("currentZone", "units"),
