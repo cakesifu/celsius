@@ -2,7 +2,7 @@
 
 var blessed = require("blessed"),
     Broker = require("../lib/protocol/broker"),
-    ADDR = "tcp://127.0.0.1:7654",
+    ADDR = "tcp://127.0.0.1:8081",
     broker = Broker({
       addr: ADDR
     }),
@@ -38,6 +38,10 @@ screen.append(unitsBox);
 screen.render();
 unitsBox.focus();
 
+screen.key(["C-c", "q"], function(ch, key) {
+  return process.exit(0);
+});
+
 function renderUnitInList(unit) {
   var out = "[" + unit.identity.toString("hex") + "] ",
       info = unit.info,
@@ -56,7 +60,7 @@ function renderUnits() {
   screen.render();
 }
 
-broker.on("unitConnected", renderUnits);
-broker.on("unitDisconnected", renderUnits);
+broker.on("unitConnect", renderUnits);
+broker.on("unitDisconnect", renderUnits);
 broker.on("unitInfo", renderUnits);
 broker.on("unitStatus", renderUnits);
