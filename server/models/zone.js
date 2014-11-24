@@ -4,7 +4,7 @@ var Datastore = require("../services/datastore"),
     makeCallback = Datastore.makeCallback.bind(Datastore, Zone),
     datastore = Datastore({model: "zone"}),
 
-    MANAGE_INTERVAL =  30 * 1000; // 3 minutes
+    MANAGE_INTERVAL =  3 * 1000; // 5 seconds
 
 function Zone(data, broker) {
   if (!(this instanceof Zone)) {
@@ -88,15 +88,31 @@ _.extend(Zone.prototype, {
   },
 
   _manage: function() {
-    console.log("managing zone: ", this._id);
+    var sensor = this.sensor,
+        heater = this.heater,
+        crtTemp = sensor && sensor.status && sensor.status.value;
+
+    if (sensor && heater && sensor.status && heater.status) {
+      console.log("Sensor: %s, Target: %s, Heater: %s", sensor.status.value, this.targetTemperature, heater.status.value);
+      if (crtTemp < this.targetTemperature) {
+        console.log("Turning heater on");
+        this._heaterUnit.sendCommand("start");
+      } else {
+        console.log("Turning heater off");
+        this._heaterUnit.sendCommand("stop");
+      }
+    }
   },
 
   _setupUnits: function() {
-    var sensorKey = this.sensorKey;
+    this._sensorUnit = this._findUnit(this.sensorKey);
+    this._heaterUnit = this._findUnit(this.heaterKey);
+  },
 
-    this._sensorUnit = _.find(this._broker.activeUnits, function(unit) {
+  _findUnit: function(key) {
+    return _.find(this._broker.activeUnits, function(unit) {
       var unitKey = unit.info && unit.info.key;
-      return unitKey && unitKey === sensorKey;
+      return unitKey && unitKey === key;
     });
   }
 });

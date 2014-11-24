@@ -84,12 +84,19 @@ screen.append(stateBox);
 screen.append(helpBox);
 screen.append(logBox);
 
+heater.on("command:start", function() {
+  setValue(1);
+});
+
+heater.on("command:stop", function() {
+  setValue(0);
+});
 
 setValue(0);
 
 function setValue(value) {
   heaterOn = (!!value) ? 1 : 0;
-  heater.setValue({value: heaterOn});
+  heater.setValue(heaterOn);
   stateBox.setContent("{center}{bold}" + VALUES[heaterOn] + "{/bold}{/center}");
   log("New value: " + VALUES[heaterOn]);
   screen.render();
