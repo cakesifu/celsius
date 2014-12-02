@@ -4,7 +4,7 @@ var Nedb = require("nedb"),
 
 
 function Datastore(options) {
-  var datastore, filename;
+  var datastore, filename, autoload;
 
   if (!options.model) {
     throw Error("The 'model' property is mandatory in options");
@@ -18,6 +18,10 @@ function Datastore(options) {
   });
 
   return Object.freeze({
+    filter: function(filters, callback) {
+      datastore.find(filters, callback);
+    },
+
     find: function(id, callback) {
       datastore.findOne({ _id: id }, callback);
     },
@@ -26,7 +30,7 @@ function Datastore(options) {
       datastore.find({}, callback);
     },
 
-    create: function(doc, callback) {
+    insert: function(doc, callback) {
       datastore.insert(doc, callback);
     },
 

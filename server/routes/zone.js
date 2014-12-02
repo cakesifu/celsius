@@ -11,6 +11,7 @@ module.exports = function(app) {
   router.get("/", getZones);
   router.post("/", createZone);
   router.get("/:zoneId", getZone);
+  router.get("/:zoneId/history", getZoneHistory);
   router.put("/:zoneId", updateZone);
 
   function getZones(req, res) {
@@ -20,6 +21,18 @@ module.exports = function(app) {
   function getZone(req, res) {
     var zone = req.zone;
     res.json(zone);
+  }
+
+  function getZoneHistory(req, res) {
+    var zone = req.zone;
+
+    zone.getHistory({}, function(err, records) {
+      if (err) {
+        return res.send(500);
+      }
+
+      res.json(records);
+    });
   }
 
   function createZone(req, res) {

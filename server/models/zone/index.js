@@ -1,21 +1,28 @@
-var Datastore = require("../services/datastore"),
+var Datastore = require("../../services/datastore"),
     _ = require("lodash"),
+    ZoneHistory = require("./history"),
 
     makeCallback = Datastore.makeCallback.bind(Datastore, Zone),
     datastore = Datastore({model: "zone"}),
 
+    HISTORY_INTERVAL = 30 * 1000,  // 5 minutes
     MANAGE_INTERVAL =  3 * 1000; // 5 seconds
 
 function Zone(data, broker) {
+  var history;
+
   if (!(this instanceof Zone)) {
     return new Zone(broker);
   }
 
   _.extend(this, data);
 
+  history = new ZoneHistory(this);
+
   Object.defineProperties(this, {
-    _intervalId: {value: undefined, writable: true},
+    _intervals: {value: {}, writable: true},
     _broker: {value: broker},
+    _history: {value: history},
     _sensorUnit: {value: undefined, writable: true},
     _heaterUnit: {value: undefined, writable: true},
     sensor: {
@@ -53,7 +60,7 @@ _.extend(Zone, {
   },
 
   create: function(data, cb) {
-    datastore.create(data, makeCallback(cb));
+    datastore.insert(data, makeCallback(cb));
   }
 });
 
@@ -80,11 +87,17 @@ _.extend(Zone.prototype, {
   },
 
   startManaging: function() {
-    this._intervalId = setInterval(this._manage.bind(this), MANAGE_INTERVAL);
+    this._intervals.manage = setInterval(this._manage.bind(this), MANAGE_INTERVAL);
+    this._intervals.histoty = setInterval(this._updateHistory.bind(this), HISTORY_INTERVAL);
   },
 
   stopManaging: function() {
-    clearInterval(this._intervalId);
+    clearInterval(this._intervals.manage);
+    clearInterval(this._intervals.history);
+  },
+
+  getHistory: function(options, cb) {
+    this._history.getSensorRecords(options, cb);
   },
 
   _manage: function() {
@@ -101,6 +114,14 @@ _.extend(Zone.prototype, {
         console.log("Turning heater off");
         this._heaterUnit.sendCommand("stop");
       }
+    }
+  },
+
+  _updateHistory: function() {
+    var sensor = this._sensorUnit;
+
+    if (sensor && sensor.status) {
+      this._history.addSensorRecord(sensor.status.value);
     }
   },
 
