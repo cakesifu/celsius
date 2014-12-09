@@ -16,6 +16,10 @@ function ZoneHistory(zone) {
        unit: UNIT_SENSOR,
        value: value,
        time: moment().unix()
+     }, function(err, doc) {
+       if (err) {
+         console.error("error inserting history", err);
+       }
      });
   }
 
