@@ -1,5 +1,6 @@
 [Service]
-ExecStart=/usr/bin/node /home/deploy/celsius/index.js
+ExecStart=/usr/bin/node index.js
+WorkingDirectory=/home/deploy/celsius
 Restart=always
 StandardOutput=syslog
 SyslogIdentifier=celsiusapp
