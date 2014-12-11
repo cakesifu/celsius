@@ -1,10 +1,10 @@
 NPM_BIN=./node_modules/.bin
 LOG_PARSER=| $(NPM_BIN)/bunyan
 
-build:
+build: configure
 	$(NPM_BIN)/gulp build
 
-dist:
+dist: configure
 	$(NPM_BIN)/gulp dist
 
 server:
@@ -14,8 +14,9 @@ client:
 	$(NPM_BIN)/gulp watch
 
 configure:
+	mkdir -p .data
 	npm install
-	bower install
+	$(NPM_BIN)/bower install --config.interactive=false -q
 
 db_migrate:
 	./scripts/db.js migrate
@@ -23,17 +24,4 @@ db_migrate:
 db_rollback:
 	./scripts/db.js rollback
 
-db_reset:
-	./scripts/db.js drop
-
-db_create:
-	mkdir -p .data
-	./scripts/db.js create
-
-db_setup: db_reset db_create db_migrate
-
-migration:
-	$(NPM_BIN)/sequelize -c "$(NAME)"
-
-
-.PHONY: server client build configure deploy db_migrate db_rollback db_reset migration db_setup db_create
+.PHONY: server client dist build configure deploy db_migrate db_rollback
