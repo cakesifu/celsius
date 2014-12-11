@@ -26,17 +26,25 @@ def production():
 
 @task
 @roles("webserver")
-def deploy():
-    crt_deployment = _read_deploy_info()
+def deploy(branch="origin/master"):
+    crt_deployment = read_deploy_info()
 
     if crt_deployment is None:
         cold_deploy()
 
-    print crt_deployment
+    sudo("systemctl stop celsius_app.service")
+
+    with cd(deploy_path()):
+        run("git fetch -q origin")
+        run("git checkout {}".format(branch))
+        run("make dist")
+
+    sudo("systemctl start celsius_app.service")
+
+    write_deploy_info()
 
 
-
-def _read_deploy_info():
+def read_deploy_info():
     with settings(warn_only=True): # TODO if possible disable warnings at all
         run("echo $HOME/celsius")
         deploy_file = deploy_path("deploy.json")
@@ -52,25 +60,24 @@ def _read_deploy_info():
         return json.loads(raw_info)
 
 
-def _create_deploy_info():
+def write_deploy_info():
     commit = ""
     date = "now"
 
     with cd(deploy_path()):
         commit = run("git rev-parse HEAD")
 
-    return {
+    info = {
         "commit": commit,
         "deployed_at": date
     }
+    info_str = json.dumps(info)
+    run("echo '{}' > {}".format(info_str, deploy_path("deploy.json")))
 
 
 def cold_deploy():
     run("rm -Rf {}".format(deploy_path()))
-    run("git clone -q {} {}".format(REPO_URL, env.deploy_path))
-    info = _create_deploy_info()
-    info_str = json.dumps(info)
-    run("echo '{}' > {}".format(info_str, deploy_path("deploy.json")))
+    run("git clone -q {} {}".format(REPO_URL, deploy_path()))
 
 
 def  deploy_path(path=""):

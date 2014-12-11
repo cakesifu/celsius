@@ -4,6 +4,9 @@ LOG_PARSER=| $(NPM_BIN)/bunyan
 build:
 	$(NPM_BIN)/gulp build
 
+dist:
+	$(NPM_BIN)/gulp dist
+
 server:
 	$(NPM_BIN)/nodemon index.js --env=development $(LOG_PARSER)
 

@@ -1,0 +1,10 @@
+[Service]
+ExecStart=/usr/bin/node /home/deploy/celsius/index.js
+Restart=always
+StandardOutput=syslog
+SyslogIdentifier=celsiusapp
+User=deploy
+Group=deploy
+
+[Install]
+WantedBy=multi-user.target
