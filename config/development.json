@@ -1,10 +1,6 @@
 {
   "db": {
-    "dataDir": "./.data/",
-    "default": {
-      "dialect": "sqlite",
-      "storage": "./.data/default.sqlite"
-    }
+    "dataDir": "./.data/"
   },
   "logger": {
     "src": false,

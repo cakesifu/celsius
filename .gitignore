@@ -1,7 +1,15 @@
 node_modules
 bower_components
 
+# runtime data
 .dist
 .data
 
+# hosts config for deployment script
+deploy/hosts.json
+
+# current deploy info file
+deploy.json
+
+# any python files
 *.pyc

@@ -4,11 +4,14 @@ from fabric.colors import *
 import json
 
 DEPLOY_PATH = "$HOME/celsius"
-REPO_URL = "git@github.com:cezar-berea/celsius.git"
+REPO_URL = "https://github.com/cezar-berea/celsius.git"
 
 env.roledefs = {
-    "webserver": ["deploy@localhost"]
+    "webserver": []
 }
+
+with open("deploy/hosts.json") as hosts_file:
+    hosts = json.load(hosts_file)
 
 env.colorize_errors = True
 env.linewise = True
@@ -16,13 +19,14 @@ env.linewise = True
 @task
 def staging():
     """ Prefix task. Uses stanging environment """
-    env.roledefs["webserver"] = ["deploy@localhost"]
+    env.roledefs = hosts["staging"]["servers"]
     env.deploy_path = DEPLOY_PATH
 
 @task
 def production():
     """ Prefix task. Uses production environment """
-    env.roledefs["webserver"] = ["production@localhost"]
+    env.roledefs = hosts["production"]["servers"]
+    env.deploy_path = DEPLOY_PATH
 
 @task
 @roles("webserver")
@@ -36,7 +40,7 @@ def deploy(branch="origin/master"):
 
     with cd(deploy_path()):
         run("git fetch -q origin")
-        run("git checkout {}".format(branch))
+        run("git checkout -qf {}".format(branch))
         run("make dist")
 
     sudo("systemctl start celsius_app.service")
