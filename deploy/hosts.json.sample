@@ -1,0 +1,19 @@
+{
+  "staging": {
+    "servers": {
+      "webserver": ["localhost"]
+    },
+    "remoteDeployPath": "/opt/cesius",
+    "remoteTempPath": "/tmp/celsius_deploy"
+  },
+
+  "production": {
+    "servers": {
+      "webserver": ["localhost"]
+    },
+    "remoteDeployPath": "/opt/cesius",
+    "remoteTempPath": "/tmp/celsius_deploy"
+  },
+
+  "localTempPath": "/tmp/celsius_deploy"
+}
