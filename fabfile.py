@@ -19,38 +19,52 @@ env.linewise = True
 @task
 def staging():
     """ Prefix task. Uses stanging environment """
-    env.roledefs = hosts["staging"]["servers"]
-    env.deploy_path = DEPLOY_PATH
+    populate_env(hosts["staging"])
 
 @task
 def production():
     """ Prefix task. Uses production environment """
-    env.roledefs = hosts["production"]["servers"]
-    env.deploy_path = DEPLOY_PATH
+    populate_env(hosts["production"])
 
 @task
 @roles("webserver")
 def deploy(branch="origin/master"):
-    crt_deployment = read_deploy_info()
+    deploy_info = read_deploy_info()
 
-    if crt_deployment is None:
+    # make tar of target commit files in $LOCAL_TMP_PATH
+    # upload tar to server to $REMOTE_TMP_PATH
+    # unpack in new dir under $DEPLOY_PATH
+    # build project
+    # stop service
+    # move link to new folder
+    # start service
+
+    if deploy_info is None:
         cold_deploy()
 
-    sudo("systemctl stop celsius_app.service")
+    commit = local("git rev-parse {}".format(branch))
+    archive_file = upload_archive(commit)
 
-    with cd(deploy_path()):
-        run("git fetch -q origin")
-        run("git checkout -qf {}".format(branch))
-        run("make dist")
+    #sudo("systemctl stop celsius_app.service")
 
-    sudo("systemctl start celsius_app.service")
+    #with cd(deploy_path()):
+    #    run("git fetch -q origin")
+    #    run("git checkout -qf {}".format(branch))
+    #    run("make dist")
 
-    write_deploy_info()
+    #sudo("systemctl start celsius_app.service")
 
+    #update_deploy_info()
+
+
+def populate_env(config):
+    env.roledefs = config["servers"]
+    env.remote_deploy_path = config.get("remoteDeployPath")
+    env.remote_temp_path = config.get("remoteTempPath")
+    env.local_temp_path = config.get("localTempPath")
 
 def read_deploy_info():
     with settings(warn_only=True): # TODO if possible disable warnings at all
-        run("echo $HOME/celsius")
         deploy_file = deploy_path("deploy.json")
 
         if run("test -f {}".format(deploy_file)).failed:
@@ -63,26 +77,36 @@ def read_deploy_info():
 
         return json.loads(raw_info)
 
+def upload_archive(commit):
+    commit = commit
+    local_archive_file = "{}/celsius-{}.tar.gz".format(env.local_temp_path, commit)
+    remote_archive_file = "{}/.tmp/{}.tar.gz".format(env.remote_deploy_path, commit)
 
-def write_deploy_info():
-    commit = ""
-    date = "now"
+    local("git archive {} | gzip > {}".format(comit, local_archive_file))
+    put(local_archive_file, remote_archive_file)
 
-    with cd(deploy_path()):
-        commit = run("git rev-parse HEAD")
+    return remote_archive_file
 
-    info = {
-        "commit": commit,
-        "deployed_at": date
-    }
-    info_str = json.dumps(info)
-    run("echo '{}' > {}".format(info_str, deploy_path("deploy.json")))
+#def write_deploy_info():
+#    commit = ""
+#    date = "now"
+
+#    with cd(deploy_path()):
+#        commit = run("git rev-parse HEAD")
+
+#    info = {
+#        "commit": commit,
+#        "deployed_at": date
+#    }
+#    info_str = json.dumps(info)
+#    run("echo '{}' > {}".format(info_str, deploy_path("deploy.json")))
 
 
 def cold_deploy():
-    run("rm -Rf {}".format(deploy_path()))
-    run("git clone -q {} {}".format(REPO_URL, deploy_path()))
+    run("mkdir -p {}".format(deploy_path(".tmp")))
 
+def clean():
+    pass
 
 def  deploy_path(path=""):
     return "{}/{}".format(env.deploy_path, path)
