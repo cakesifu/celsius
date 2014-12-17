@@ -44,6 +44,12 @@ def deploy(branch="origin/master"):
 
     commit = local("git rev-parse {}".format(branch))
     archive_file = upload_archive(commit)
+    folder_name = next_deploy_folder(deploy_info)
+    deploy_folder = deploy_path(folder_name)
+
+    with cd(deploy_folder):
+        run("tar -xzf {}".format(archive_file))
+        run("make dist")
 
     #sudo("systemctl stop celsius_app.service")
 
@@ -56,6 +62,10 @@ def deploy(branch="origin/master"):
 
     #update_deploy_info()
 
+def next_deploy_folder(info):
+    keys = info.keys()
+    number = max(keys) + 1
+    return "deploymeny-{}".format(number)
 
 def populate_env(config):
     env.roledefs = config["servers"]
