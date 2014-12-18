@@ -41,15 +41,18 @@ def deploy(branch="origin/master"):
 
     if deploy_info is None:
         cold_deploy()
+        deploy_info = {}
 
-    commit = local("git rev-parse {}".format(branch))
+    commit = local("git rev-parse {}".format(branch), capture=True)
+
     archive_file = upload_archive(commit)
     folder_name = next_deploy_folder(deploy_info)
     deploy_folder = deploy_path(folder_name)
 
+    run("mkdir -p {}".format(deploy_folder))
     with cd(deploy_folder):
         run("tar -xzf {}".format(archive_file))
-        run("make dist")
+        #run("make dist")
 
     #sudo("systemctl stop celsius_app.service")
 
@@ -60,11 +63,17 @@ def deploy(branch="origin/master"):
 
     #sudo("systemctl start celsius_app.service")
 
-    #update_deploy_info()
+    update_deploy_info(info=deploy_info,
+                       commit=commit,
+                       folder=folder_name,
+                       fullpath=deploy_folder)
+
+def update_deploy_info(info, commit, folder, fullpath):
+    pass
 
 def next_deploy_folder(info):
     keys = info.keys()
-    number = max(keys) + 1
+    number = max(keys) + 1 if len(keys) else 1
     return "deploymeny-{}".format(number)
 
 def populate_env(config):
@@ -88,11 +97,12 @@ def read_deploy_info():
         return json.loads(raw_info)
 
 def upload_archive(commit):
-    commit = commit
     local_archive_file = "{}/celsius-{}.tar.gz".format(env.local_temp_path, commit)
     remote_archive_file = "{}/.tmp/{}.tar.gz".format(env.remote_deploy_path, commit)
 
-    local("git archive {} | gzip > {}".format(comit, local_archive_file))
+    local("mkdir -p {}".format(env.local_temp_path))
+    local("git archive {} | gzip > {}".format(commit, local_archive_file))
+    run("mkdir -p {}".format(env.remote_temp_path))
     put(local_archive_file, remote_archive_file)
 
     return remote_archive_file
@@ -113,10 +123,11 @@ def upload_archive(commit):
 
 
 def cold_deploy():
-    run("mkdir -p {}".format(deploy_path(".tmp")))
+    run("mkdir -p {}".format(deploy_path()))
+    run("mkdir -p {}".format(env.remote_temp_path))
 
 def clean():
     pass
 
 def  deploy_path(path=""):
-    return "{}/{}".format(env.deploy_path, path)
+    return "{}/{}".format(env.remote_deploy_path, path)
