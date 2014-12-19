@@ -46,7 +46,8 @@ def deploy(branch="origin/master"):
     commit = local("git rev-parse {}".format(branch), capture=True)
 
     archive_file = upload_archive(commit)
-    folder_name = next_deploy_folder(deploy_info)
+    deploy_no = next_deploy_no(deploy_info)
+    folder_name = next_deploy_folder(deploy_no)
     deploy_folder = deploy_path(folder_name)
 
     run("mkdir -p {}".format(deploy_folder))
@@ -65,16 +66,27 @@ def deploy(branch="origin/master"):
 
     update_deploy_info(info=deploy_info,
                        commit=commit,
+                       deploy_no=deploy_no,
                        folder=folder_name,
                        fullpath=deploy_folder)
 
-def update_deploy_info(info, commit, folder, fullpath):
-    pass
+def update_deploy_info(info, deploy_no, commit, folder, fullpath):
+    info[deploy_no] = {
+        "commit": commit,
+        "folder": folder,
+        "fullpath": fullpath
+    }
+    deploy_file = deploy_path("deploy.json")
+    info_str = json.dumps(info)
+    run("echo '{}' > {}".format(info_str, deploy_file))
 
-def next_deploy_folder(info):
-    keys = info.keys()
-    number = max(keys) + 1 if len(keys) else 1
-    return "deploymeny-{}".format(number)
+def next_deploy_no(info):
+    keys = [int(k) for k in info.keys()]
+    deploy_no = max(keys) + 1 if len(keys) else 1
+    return deploy_no
+
+def next_deploy_folder(deploy_no):
+    return "deployment-{}".format(deploy_no)
 
 def populate_env(config):
     env.roledefs = config["servers"]
@@ -106,21 +118,6 @@ def upload_archive(commit):
     put(local_archive_file, remote_archive_file)
 
     return remote_archive_file
-
-#def write_deploy_info():
-#    commit = ""
-#    date = "now"
-
-#    with cd(deploy_path()):
-#        commit = run("git rev-parse HEAD")
-
-#    info = {
-#        "commit": commit,
-#        "deployed_at": date
-#    }
-#    info_str = json.dumps(info)
-#    run("echo '{}' > {}".format(info_str, deploy_path("deploy.json")))
-
 
 def cold_deploy():
     run("mkdir -p {}".format(deploy_path()))
