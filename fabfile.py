@@ -2,6 +2,7 @@ from fabric.api import *
 from fabric.colors import *
 
 import json
+import os
 
 DEPLOY_PATH = "$HOME/celsius"
 REPO_URL = "https://github.com/cezar-berea/celsius.git"
@@ -45,14 +46,15 @@ def deploy(branch="origin/master"):
 
     commit = local("git rev-parse {}".format(branch), capture=True)
 
-    archive_file = upload_archive(commit)
+    local_archive_file = create_archive(commit)
+    remote_archive_file = upload_archive(local_archive_file)
     deploy_no = next_deploy_no(deploy_info)
     folder_name = next_deploy_folder(deploy_no)
     deploy_folder = deploy_path(folder_name)
 
     run("mkdir -p {}".format(deploy_folder))
     with cd(deploy_folder):
-        run("tar -xzf {}".format(archive_file))
+        run("tar -xzf {}".format(remote_archive_file))
         #run("make dist")
 
     #sudo("systemctl stop celsius_app.service")
@@ -108,12 +110,22 @@ def read_deploy_info():
 
         return json.loads(raw_info)
 
-def upload_archive(commit):
+def create_archive(commit):
     local_archive_file = "{}/celsius-{}.tar.gz".format(env.local_temp_path, commit)
-    remote_archive_file = "{}/.tmp/{}.tar.gz".format(env.remote_deploy_path, commit)
+    local_dir = "{}/celsius-{}".format(env.local_temp_path, commit)
+    local("mkdir -p {}".format(local_dir))
+    local("git archive {} | tar -xC {}".format(commit, local_dir))
+    with cd(local_dir):
+        #local("make dist")
+        local("tar -czf {} -C {} .".format(local_archive_file, local_dir))
 
-    local("mkdir -p {}".format(env.local_temp_path))
-    local("git archive {} | gzip > {}".format(commit, local_archive_file))
+    return local_archive_file
+
+
+def upload_archive(local_archive_file):
+    fname = os.path.basename(local_archive_file)
+    remote_archive_file = "{}/{}".format(env.remote_temp_path, fname)
+
     run("mkdir -p {}".format(env.remote_temp_path))
     put(local_archive_file, remote_archive_file)
 
