@@ -1,8 +1,10 @@
 from fabric.api import *
+from fabric.utils import *
 from fabric.colors import *
 
 import json
 import os
+import datetime
 
 DEPLOY_PATH = "$HOME/celsius"
 REPO_URL = "https://github.com/cezar-berea/celsius.git"
@@ -32,18 +34,79 @@ def production():
 def deploy(branch="origin/master"):
     deploy_info = read_deploy_info()
 
-    # make tar of target commit files in $LOCAL_TMP_PATH
-    # upload tar to server to $REMOTE_TMP_PATH
-    # unpack in new dir under $DEPLOY_PATH
-    # build project
-    # stop service
-    # move link to new folder
-    # start service
-
     if deploy_info is None:
-        cold_deploy()
+        setup_deploy_dir()
         deploy_info = {}
 
+    perform_deploy(branch=branch, deploy_info=deploy_info)
+
+@task
+@roles("webserver")
+def cold_deploy(branch="origin/master"):
+    setup_deploy_dir()
+    perform_deploy(branch=branch, deploy_info={})
+
+
+@task
+@roles("webserver")
+def rollback(deploy_no=None):
+    """Roll back to previous deploy"""
+    pass
+
+
+@task
+@roles("webserver")
+def cleanup(count=5):
+    """Cleanup old depoys. Use param count to specify how many to keep"""
+    count = int(count)
+    deploy_info = read_deploy_info()
+    if deploy_info is None:
+        abort("No deploys")
+
+    crt_no = get_current_deploy_no(deploy_info)
+    deploys = deploy_info.keys()
+    deploys.sort()
+    puts("Current deploy count: {}".format(len(deploys)))
+    puts("Keep only {} deploys".format(count))
+    if len(deploys) <= count:
+        abort("No deploys to cleanup")
+
+    deploys_to_remove = deploys[:-count]
+    if crt_no in deploys_to_remove:
+        abort("Current deploy is in the list of deploys to remove")
+
+    for no in deploys_to_remove:
+        run("rm -rf {}".format(deploy_info[no]["fullpath"]), warn_only=True)
+        del deploy_info[no]
+
+    update_deploy_info(deploy_info)
+
+@task
+@roles("webserver")
+def current_deploy():
+    pass
+
+@task
+@roles("webserver")
+def list_deploys():
+    deploy_info = read_deploy_info()
+    if not deploy_info:
+        print "No deploys"
+        return
+
+    crt_no = get_current_deploy_no(deploy_info)
+    keys = deploy_info.keys()
+    keys.sort()
+    for no in keys:
+        info = deploy_info[no]
+        extra = "(current)" if no == crt_no else ""
+        puts("deploy no: {} {}".format(no, extra))
+        puts(indent("commit: {}".format(info["commit"]), spaces=2))
+        puts(indent("folder: {}".format(info["folder"]), spaces=2))
+        puts(indent("fullpath: {}".format(info["fullpath"]), spaces=2))
+
+
+def perform_deploy(branch, deploy_info):
     commit = local("git rev-parse {}".format(branch), capture=True)
 
     local_archive_file = create_archive(commit)
@@ -51,36 +114,30 @@ def deploy(branch="origin/master"):
     deploy_no = next_deploy_no(deploy_info)
     folder_name = next_deploy_folder(deploy_no)
     deploy_folder = deploy_path(folder_name)
+    current_folder = deploy_path("current")
 
+    run("rm -rf {}".format(deploy_folder))
     run("mkdir -p {}".format(deploy_folder))
-    with cd(deploy_folder):
-        run("tar -xzf {}".format(remote_archive_file))
-        #run("make dist")
+    run("tar -xzf {} -C {}".format(remote_archive_file, deploy_folder))
 
-    #sudo("systemctl stop celsius_app.service")
+    sudo("systemctl stop celsius_app.service")
+    run("unlink {}".format(current_folder), warn_only=True)
+    run("ln -s {} {}".format(deploy_folder, current_folder))
+    sudo("systemctl start celsius_app.service")
 
-    #with cd(deploy_path()):
-    #    run("git fetch -q origin")
-    #    run("git checkout -qf {}".format(branch))
-    #    run("make dist")
-
-    #sudo("systemctl start celsius_app.service")
-
-    update_deploy_info(info=deploy_info,
+    append_deploy_info(info=deploy_info,
                        commit=commit,
                        deploy_no=deploy_no,
                        folder=folder_name,
                        fullpath=deploy_folder)
 
-def update_deploy_info(info, deploy_no, commit, folder, fullpath):
-    info[deploy_no] = {
-        "commit": commit,
-        "folder": folder,
-        "fullpath": fullpath
-    }
-    deploy_file = deploy_path("deploy.json")
-    info_str = json.dumps(info)
-    run("echo '{}' > {}".format(info_str, deploy_file))
+
+def setup_deploy_dir():
+    run("rm -rf {}".format(deploy_path("*")))
+    run("rm -rf {}/*".format(env.remote_temp_path))
+    run("mkdir -p {}".format(deploy_path()))
+    run("mkdir -p {}".format(env.remote_temp_path))
+
 
 def next_deploy_no(info):
     keys = [int(k) for k in info.keys()]
@@ -110,6 +167,22 @@ def read_deploy_info():
 
         return json.loads(raw_info)
 
+def append_deploy_info(info, deploy_no, commit, folder, fullpath):
+    info[int(deploy_no)] = {
+        "commit": commit,
+        "folder": folder,
+        "fullpath": fullpath,
+        "deploy_no": int(deploy_no),
+        "date": datetime.utcnow().isoformat()
+    }
+    update_deploy_info(info)
+
+def update_deploy_info(info):
+    deploy_file = deploy_path("deploy.json")
+    info_str = json.dumps(info)
+    run("echo '{}' > {}".format(info_str, deploy_file))
+
+
 def create_archive(commit):
     local_archive_file = "{}/celsius-{}.tar.gz".format(env.local_temp_path, commit)
     local_dir = "{}/celsius-{}".format(env.local_temp_path, commit)
@@ -131,12 +204,19 @@ def upload_archive(local_archive_file):
 
     return remote_archive_file
 
-def cold_deploy():
-    run("mkdir -p {}".format(deploy_path()))
-    run("mkdir -p {}".format(env.remote_temp_path))
+def get_current_deploy_no(deploy_info):
+    crt_dir = deploy_path("current")
+    if run("test -d {}".format(crt_dir), warn_only=True).failed:
+        return None
+
+    crt_path = run("readlink -ef {}".format(crt_dir))
+    for no in deploy_info.keys():
+        if deploy_info[no]["fullpath"] == crt_path:
+            return no
 
 def clean():
     pass
 
 def  deploy_path(path=""):
     return "{}/{}".format(env.remote_deploy_path, path)
+
